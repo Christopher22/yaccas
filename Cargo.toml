@@ -1,0 +1,4 @@
+[package]
+name = "YACOLP"
+version = "0.1.0"
+authors = ["Christopher Gundler <c.gundler@mail.de>"]
