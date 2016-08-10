@@ -43,7 +43,7 @@ impl Value {
     /// ```
     pub fn new<T : FromStr + Any + 'static>() -> Value {
         Value {
-            value : Option::None,
+            value : None,
             validator : try_convert::<T>,
             type_id : TypeId::of::<T>()
         }
@@ -60,7 +60,7 @@ impl Value {
     pub fn with_default<T : FromStr + Any + 'static, S : AsRef<str>>(value : S) -> Option<Value> {
         if try_convert::<T>(value.as_ref()) {
             Some(Value {
-                value : Option::Some(value.as_ref().to_owned()),
+                value : Some(value.as_ref().to_owned()),
                 validator : try_convert::<T>,
                 type_id : TypeId::of::<T>()
             })
@@ -85,7 +85,7 @@ impl Value {
     /// ```
     pub fn set_value<S : AsRef<str>>(&mut self, value : S) -> bool {
         if (self.validator)(value.as_ref()) {
-            self.value = Option::Some(value.as_ref().to_owned());
+            self.value = Some(value.as_ref().to_owned());
             true
         }
         else {

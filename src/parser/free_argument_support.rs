@@ -22,7 +22,7 @@
 /// assert_eq!(parser.parse(Unix::new(&["-unknown", "-value", "2"])), Result::Success(vec!["unknown".to_owned()]));
 /// assert_eq!(parser.parse(Unix::new(&["-value", "2", "-unknown"])), Result::Success(vec!["unknown".to_owned()]));
 /// ```
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum FreeArgumentSupport {
     /// No free arguments are supported.
     None,
