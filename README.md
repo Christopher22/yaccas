@@ -1,4 +1,4 @@
-# Yaccas
+# Yaccas [![Build Status](https://travis-ci.org/Christopher22/yaccas.svg?branch=master)](https://travis-ci.org/Christopher22/yaccas)
 **Y**et **A**nother **C**allback-orientated **C**ommand line p**A**r**S**er is ... well, yet another command line parser.
 
 ## Features or "Yet another?! You are not that creative, are you?!"
