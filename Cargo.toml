@@ -2,3 +2,14 @@
 name = "yaccas"
 version = "0.1.0"
 authors = ["Christopher Gundler <c.gundler@mail.de>"]
+repository = "https://github.com/Christopher22/yaccas.git"
+homepage = "https://github.com/Christopher22/yaccas.git"
+documentation = "https://christopher22.github.io/yaccas/yaccas/"
+license = "MIT"
+readme = "README.md"
+description = "Yet Another Callback-orientated Command line pArSer is ... well, yet another command line parser. But a special one."
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+    "README.md"
+]
