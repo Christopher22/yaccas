@@ -24,28 +24,33 @@ use yaccas::arguments::{Command, Flag, Value};
 use yaccas::parser::{Parser, FreeArgumentSupport, Result};
 
 fn main() {
-    let mut will_be_true = false;
+    let mut will_be_true_if_flag_is_set = false;
     let mut will_be_42_as_everytime = 0u32;
     
-    {
+    { // It's time for some magic ...
+    
+        // There a three types of arguments
         let flag = Flag::default();
         let value = Value::new::<u32>();
         let command = Command::new(|| Some("A fancy name for abort"));
         
+        // Registers the arguments to a parser.
+        // All callbacks will only be executed if parsing was successful!
         let mut parser = Parser::default();
-
+        
         parser.register(&["option", "o1", "o2"], flag, | flag | {
-            // Check if the flag was set. All callbacks will only be executed if parsing was successfull!
-            will_be_true = true;
+            // Flags are options which may occur 0 - x times.
+            will_be_true_if_flag_is_set = flag.is_activated();
         });
         
         parser.register(&["value", "v"], value, | value | {
-            // Process the value or assign it somewhere
+            // Values are command line argument-value pairs of a specific type.
             will_be_42_as_everytime = value.get_value::<u32>().expect("The answer for everything is 42!");
         });
 
         parser.register(&["abort"], command, | _command | {
-            // This will be executed if the command was not called or does not abort the execution.
+            // Commands may or may not abort the execution of parsing, i.e. for "help".
+            // This callback is a fallback: It is only called if the process was not aborted! 
         });
         
         match parser.parse(default_scanner!()) {
@@ -55,7 +60,7 @@ fn main() {
         }
     }
     
-    // Do something with "will_be_true" or "will_be_42_as_everytime" here ...
+    // Do something with "will_be_true_if_flag_is_set" or "will_be_42_as_everytime" here ...
 }
 ```
 
