@@ -38,12 +38,11 @@ pub type AbortReason = Option<&'static str>;
 /// assert_eq!(parser.parse(Unix::new(&["-help"])), Result::Aborted("help"));
 /// ```
 pub struct Command {
-    command : Box<Fn() -> AbortReason>,
-    was_executed : Flag
+    command: Box<Fn() -> AbortReason>,
+    was_executed: Flag,
 }
 
 impl Command {
-
     /// Creates a new command.
     /// # Example
     /// ```
@@ -54,10 +53,10 @@ impl Command {
     ///     Some("This will abort the parsing process!")
     /// });
     /// ```
-    pub fn new<F : Fn() -> AbortReason + 'static>(on_execution : F) -> Command  {
+    pub fn new<F: Fn() -> AbortReason + 'static>(on_execution: F) -> Command {
         Command {
-            command : Box::new(on_execution),
-            was_executed : Flag::default()
+            command: Box::new(on_execution),
+            was_executed: Flag::default(),
         }
     }
 

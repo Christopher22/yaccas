@@ -29,5 +29,5 @@ pub enum FreeArgumentSupport {
     /// Free arguments are only supported at the end. After a free argument, following arguments are free, too.
     AtTheEnd,
     /// Free arguments are supported everywhere.
-    Everywhere
+    Everywhere,
 }

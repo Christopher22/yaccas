@@ -9,11 +9,10 @@ pub enum Arguments {
     /// A specific value.
     Value(Value),
     /// A specific command.
-    Command(Command)
+    Command(Command),
 }
 
 impl Arguments {
-
     /// "Unwraps" the value of the enum without using "match".
     /// # Unsafe
     /// This function does not check the type of the enum at runtime.
@@ -29,11 +28,11 @@ impl Arguments {
     ///     assert_eq!(unwrapped_pointer.get_value::<u32>(), Some(42));
     /// }
     /// ```
-    pub unsafe fn unwrap<'a, T : Argument>(&'a self) -> &'a T {
+    pub unsafe fn unwrap<'a, T: Argument>(&'a self) -> &'a T {
         match self {
             &Arguments::Flag(ref flag) => transmute::<&'a Flag, &'a T>(flag),
             &Arguments::Value(ref value) => transmute::<&'a Value, &'a T>(value),
-            &Arguments::Command(ref command) => transmute::<&'a Command, &'a T>(command)
+            &Arguments::Command(ref command) => transmute::<&'a Command, &'a T>(command),
         }
     }
 }

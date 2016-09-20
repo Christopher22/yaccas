@@ -27,13 +27,12 @@ use super::{Argument, Arguments};
 /// assert_eq!(will_be_46, 46u32);
 /// ```
 pub struct Value {
-    value : Option<String>,
-    validator : fn(&str) -> bool,
-    type_id : TypeId
+    value: Option<String>,
+    validator: fn(&str) -> bool,
+    type_id: TypeId,
 }
 
 impl Value {
-
     /// Creates a new value of a specific type `T` which implements `FromStr`.
     /// # Example
     /// ```
@@ -41,11 +40,11 @@ impl Value {
     ///
     /// let value = Value::new::<u32>();
     /// ```
-    pub fn new<T : FromStr + Any + 'static>() -> Value {
+    pub fn new<T: FromStr + Any + 'static>() -> Value {
         Value {
-            value : None,
-            validator : try_convert::<T>,
-            type_id : TypeId::of::<T>()
+            value: None,
+            validator: try_convert::<T>,
+            type_id: TypeId::of::<T>(),
         }
     }
 
@@ -57,15 +56,14 @@ impl Value {
     /// assert!(Value::with_default::<u32, _>("46").is_some());
     /// assert!(Value::with_default::<u32, _>("Not a number!").is_none());
     /// ```
-    pub fn with_default<T : FromStr + Any + 'static, S : AsRef<str>>(value : S) -> Option<Value> {
+    pub fn with_default<T: FromStr + Any + 'static, S: AsRef<str>>(value: S) -> Option<Value> {
         if try_convert::<T>(value.as_ref()) {
             Some(Value {
-                value : Some(value.as_ref().to_owned()),
-                validator : try_convert::<T>,
-                type_id : TypeId::of::<T>()
+                value: Some(value.as_ref().to_owned()),
+                validator: try_convert::<T>,
+                type_id: TypeId::of::<T>(),
             })
-        }
-        else {
+        } else {
             None
         }
     }
@@ -83,12 +81,11 @@ impl Value {
     /// assert_eq!(value.set_value("46"), true);
     /// assert_eq!(value.get_value::<u32>(), Some(46));
     /// ```
-    pub fn set_value<S : AsRef<str>>(&mut self, value : S) -> bool {
+    pub fn set_value<S: AsRef<str>>(&mut self, value: S) -> bool {
         if (self.validator)(value.as_ref()) {
             self.value = Some(value.as_ref().to_owned());
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -105,14 +102,12 @@ impl Value {
     /// assert_eq!(value.get_value::<u32>(), Some(46));
     /// assert_eq!(value.get_value::<u8>(), None); // See hint
     /// ```
-    pub fn get_value<T : FromStr + Any + 'static>(&self) -> Option<T> {
+    pub fn get_value<T: FromStr + Any + 'static>(&self) -> Option<T> {
         if self.type_id != TypeId::of::<T>() {
             None
-        }
-        else if let Some(ref value) = self.value {
+        } else if let Some(ref value) = self.value {
             T::from_str(value).ok()
-        }
-        else {
+        } else {
             None
         }
     }
@@ -130,6 +125,6 @@ impl From<Value> for Arguments {
     }
 }
 
-fn try_convert<T : FromStr>(string : &str) -> bool {
+fn try_convert<T: FromStr>(string: &str) -> bool {
     T::from_str(string).is_ok()
 }

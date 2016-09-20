@@ -28,11 +28,10 @@ use super::{Argument, Arguments};
 /// assert_eq!(will_be_true, true);
 /// ```
 pub struct Flag {
-    value : u32
+    value: u32,
 }
 
 impl Flag {
-
     /// Activates the flag and increments the counter of matches by 1.
     pub fn activate(&mut self) {
         self.value += 1;
@@ -66,9 +65,7 @@ impl Flag {
 
 impl Default for Flag {
     fn default() -> Flag {
-        Flag {
-            value : 0
-        }
+        Flag { value: 0 }
     }
 }
 

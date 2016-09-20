@@ -42,5 +42,5 @@ pub enum Result {
     /// An unknown name appears which could not be parsed as free argument.
     InvalidArgument,
     /// A registered `Value` got a value not matching its type and no default value was set.
-    InvalidValue
+    InvalidValue,
 }

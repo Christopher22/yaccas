@@ -23,20 +23,20 @@ use super::{Scanner, Token};
 /// assert_eq!(unix.next(), Some(Token::Free("command".to_string())));
 /// assert_eq!(unix.next(), None);
 /// ```
-pub struct Unix<T : Iterator<Item=String> = Args> {
-    args : T
+pub struct Unix<T: Iterator<Item = String> = Args> {
+    args: T,
 }
 
-impl<T : Iterator<Item=String>> Iterator for Unix<T> {
+impl<T: Iterator<Item = String>> Iterator for Unix<T> {
     type Item = Token;
 
     fn next(&mut self) -> Option<Token> {
-        self.args.next().map(| argument | {
+        self.args.next().map(|argument| {
 
             {
                 let trimmed = argument.trim_left_matches('-');
                 if trimmed.len() != argument.len() {
-                    return Token::Bound(trimmed.to_string())
+                    return Token::Bound(trimmed.to_string());
                 }
             }
 
@@ -49,31 +49,24 @@ impl Default for Unix<Args> {
     fn default() -> Unix<Args> {
         let mut args = args();
         args.next().expect("Args invalid!");
-        Unix {
-            args : args
-        }
+        Unix { args: args }
     }
 }
 
 impl Default for Unix<IntoIter<String>> {
     fn default() -> Unix<IntoIter<String>> {
-        Unix {
-            args: Vec::new().into_iter()
-        }
+        Unix { args: Vec::new().into_iter() }
     }
 }
 
 impl Unix<IntoIter<String>> {
-
     /// Creates a new scanner for debugging.
     /// # Hint
     /// To create a scanner processing the command line arguments instead use `Unix::<Args>::default()`.
-    pub fn new<'a>(arguments : &[&'a str]) -> Unix<IntoIter<String>> {
-        let strings : Vec<String> = arguments.iter().map(|x| x.to_string()).collect();
-        Unix {
-            args : strings.into_iter()
-        }
+    pub fn new<'a>(arguments: &[&'a str]) -> Unix<IntoIter<String>> {
+        let strings: Vec<String> = arguments.iter().map(|x| x.to_string()).collect();
+        Unix { args: strings.into_iter() }
     }
 }
 
-impl<T : Iterator<Item=String>> Scanner for Unix<T> where Unix<T> : Default {}
+impl<T: Iterator<Item = String>> Scanner for Unix<T> where Unix<T>: Default {}
