@@ -14,7 +14,7 @@ pub struct Parser<'a> {
     pub free_arguments: FreeArgumentSupport,
     names: HashMap<&'a str, usize>,
     arguments: Vec<Arguments>,
-    callbacks: Vec<Box<Executable + 'a>>,
+    callbacks: HashMap<usize, Box<Executable + 'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -39,12 +39,13 @@ impl<'a> Parser<'a> {
                                                                argument: T,
                                                                handle: F) {
         self.arguments.push(argument.into());
-        self.callbacks.push(Box::new(Callback::<T, F> {
+
+        let index = self.arguments.len() - 1;
+
+        self.callbacks.insert(index, Box::new(Callback::<T, F> {
             phantom: PhantomData,
             callback: handle,
         }));
-
-        let index = self.arguments.len() - 1;
 
         for name in names {
             self.names.insert(name, index);
@@ -146,8 +147,8 @@ impl<'a> Parser<'a> {
         }
 
         // Execute callbacks
-        for (index, callback) in self.callbacks.iter_mut().enumerate() {
-            callback.execute(&self.arguments[index])
+        for (index, callback) in self.callbacks.iter_mut() {
+            callback.execute(&self.arguments[*index])
         }
 
         Result::Success(free_variables)
@@ -160,7 +161,7 @@ impl<'a> Default for Parser<'a> {
             free_arguments: FreeArgumentSupport::AtTheEnd,
             names: HashMap::new(),
             arguments: Vec::new(),
-            callbacks: Vec::new(),
+            callbacks: HashMap::new(),
         }
     }
 }
