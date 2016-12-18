@@ -1,15 +1,15 @@
 use std::mem::transmute;
 
-use super::{Argument, Flag, Value, Command};
+use super::{Argument, Flag, Value, Command, Metadata};
 
 /// An enum of all arguments which may be processed by the parser.
 pub enum Arguments {
     /// A specific flag.
-    Flag(Flag),
+    Flag(Flag, Metadata<Flag>),
     /// A specific value.
-    Value(Value),
+    Value(Value, Metadata<Value>),
     /// A specific command.
-    Command(Command),
+    Command(Command, Metadata<Command>),
 }
 
 impl Arguments {
@@ -30,9 +30,9 @@ impl Arguments {
     /// ```
     pub unsafe fn unwrap<'a, T: Argument>(&'a self) -> &'a T {
         match self {
-            &Arguments::Flag(ref flag) => transmute::<&'a Flag, &'a T>(flag),
-            &Arguments::Value(ref value) => transmute::<&'a Value, &'a T>(value),
-            &Arguments::Command(ref command) => transmute::<&'a Command, &'a T>(command),
+            &Arguments::Flag(ref flag, _) => transmute::<&'a Flag, &'a T>(flag),
+            &Arguments::Value(ref value, _) => transmute::<&'a Value, &'a T>(value),
+            &Arguments::Command(ref command, _) => transmute::<&'a Command, &'a T>(command),
         }
     }
 }

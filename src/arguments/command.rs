@@ -1,6 +1,6 @@
 use std::ops::{Fn, Deref};
 
-use super::{Flag, Argument, Arguments};
+use super::{Flag, Argument, Arguments, Metadata};
 
 /// The result of a `Command`. The parsing is aborted if a reason is set, else it continues.
 /// # Example
@@ -82,6 +82,6 @@ impl Argument for Command {
 
 impl From<Command> for Arguments {
     fn from(command: Command) -> Arguments {
-        Arguments::Command(command)
+        Arguments::Command(command, Metadata::default())
     }
 }

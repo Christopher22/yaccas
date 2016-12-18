@@ -1,7 +1,7 @@
 use std::any::{Any, TypeId};
 use std::str::FromStr;
 
-use super::{Argument, Arguments};
+use super::{Argument, Arguments, Metadata};
 
 /// An argument which represents a value of a specific type.
 /// # Example
@@ -121,7 +121,7 @@ impl Argument for Value {
 
 impl From<Value> for Arguments {
     fn from(value: Value) -> Arguments {
-        Arguments::Value(value)
+        Arguments::Value(value, Metadata::default())
     }
 }
 

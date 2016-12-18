@@ -80,15 +80,15 @@ impl<'a> Parser<'a> {
 
                         // Find argument by ID
                         match self.arguments.get_mut(index) {
-                            Some(&mut Arguments::Flag(ref mut flag)) => {
+                            Some(&mut Arguments::Flag(ref mut flag, _)) => {
                                 flag.activate();
                             }
-                            Some(&mut Arguments::Command(ref mut command)) => {
+                            Some(&mut Arguments::Command(ref mut command, _)) => {
                                 if let Some(abort_reason) = command.execute() {
                                     return Result::Aborted(abort_reason);
                                 }
                             }
-                            Some(&mut Arguments::Value(_)) => {
+                            Some(&mut Arguments::Value(_, _)) => {
                                 current_argument = Some(index);
                             }
                             None => panic!("Invalid index!"),
@@ -108,7 +108,7 @@ impl<'a> Parser<'a> {
                 }
                 (Token::Free(value), Some(argument_index)) => {
                     // If a value was found
-                    if let Arguments::Value(ref mut value_target) = self.arguments[argument_index] {
+                    if let Arguments::Value(ref mut value_target, _) = self.arguments[argument_index] {
                         if !value_target.set_value(value) || !value_target.has_value() {
                             return Result::InvalidValue;
                         }
@@ -139,7 +139,7 @@ impl<'a> Parser<'a> {
 
         // Check if all arguments are sufficient
         for argument in self.arguments.iter() {
-            if let &Arguments::Value(ref value) = argument {
+            if let &Arguments::Value(ref value, _) = argument {
                 if !value.has_value() {
                     return Result::NotSufficient;
                 }

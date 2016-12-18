@@ -1,7 +1,7 @@
 use std::convert::From;
 use std::default::Default;
 
-use super::{Argument, Arguments};
+use super::{Argument, Arguments, Metadata};
 
 /// An argument which represents an option which may occur 0 - x times.
 /// # Example
@@ -77,6 +77,6 @@ impl Argument for Flag {
 
 impl From<Flag> for Arguments {
     fn from(value: Flag) -> Arguments {
-        Arguments::Flag(value)
+        Arguments::Flag(value, Metadata::default())
     }
 }
