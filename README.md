@@ -16,14 +16,15 @@ Let me convince you: Why should you choose this one?
 [Documentation on GitHub](https://christopher22.github.io/yaccas/yaccas/)
 
 ## Example
+There are two ways to use Yaccas: The preferred callback-oriented method or a argument-oriented one.
 ```Rust
 #[macro_use]
 extern crate yaccas;
 
-use yaccas::arguments::{Command, Flag, Value};
+use yaccas::arguments::{Argument, Command, Flag, Value};
 use yaccas::parser::{Parser, FreeArgumentSupport, Result};
 
-fn main() {
+fn method_with_callback() {
     let mut will_be_true_if_flag_is_set = false;
     let mut will_be_42_as_everytime = 0u32;
     
@@ -38,20 +39,20 @@ fn main() {
         // All callbacks will only be executed if parsing was successful!
         let mut parser = Parser::default();
         
-        parser.register(&["option", "o1", "o2"], flag, | flag | {
+        parser.register(&["option", "o1", "o2"], Argument::with_callback(flag, | flag | {
             // Flags are options which may occur 0 - x times.
             will_be_true_if_flag_is_set = flag.is_activated();
-        });
+        }));
         
-        parser.register(&["value", "v"], value, | value | {
+        parser.register(&["value", "v"], Argument::with_callback(value, | value | {
             // Values are command line argument-value pairs of a specific type.
             will_be_42_as_everytime = value.get_value::<u32>().expect("The answer for everything is 42!");
-        });
+        }));
 
-        parser.register(&["abort"], command, | _command | {
+        parser.register(&["abort"], Argument::with_callback(command, | _command | {
             // Commands may or may not abort the execution of parsing, i.e. for "help".
             // This callback is a fallback: It is only called if the process was not aborted! 
-        });
+        }));
         
         match parser.parse(default_scanner!()) {
             Result::Success(free_arguments) => { /* ... */ },
@@ -61,6 +62,30 @@ fn main() {
     }
     
     // Do something with "will_be_true_if_flag_is_set" or "will_be_42_as_everytime" here ...
+}
+
+fn method_without_callback() {
+    
+    let mut flag = Flag::default();
+    let mut value = Value::new::<u32>();
+    let mut command = Command::new(|| Some("A fancy name for abort"));
+            
+    { // It's time for some magic ...
+        // Registers the arguments to a parser.
+        let mut parser = Parser::default();
+        
+        parser.register(&["option", "o1", "o2"], flag);
+        parser.register(&["value", "v"], value);
+        parser.register(&["abort"], command);
+        
+        match parser.parse(default_scanner!()) {
+            Result::Success(free_arguments) => { /* ... */ },
+            Result::Aborted("A fancy name for abort") => { /* Abort execution */ },
+            _ => { /* Abort execution */ }
+        }
+    }
+    
+    // Access arguments directly here to access i.e. their values.
 }
 ```
 
