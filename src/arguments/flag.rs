@@ -1,12 +1,12 @@
 use std::convert::From;
 use std::default::Default;
 
-use super::{Argument, Arguments};
+use super::{Parsable, Argument};
 
 /// An argument which represents an option which may occur 0 - x times.
 /// # Example
 /// ```
-/// use yaccas::arguments::{Arguments, Flag};
+/// use yaccas::arguments::{Argument, Flag};
 /// use yaccas::parser::{Parser, Result};
 /// use yaccas::scanner::Unix;
 ///
@@ -17,7 +17,7 @@ use super::{Argument, Arguments};
 ///     let mut parser = Parser::default();
 ///     let flag = Flag::default();
 ///
-///     parser.register(&["option", "o"], Arguments::with_callback(flag, | flag | {
+///     parser.register(&["option", "o"], Argument::with_callback(flag, | flag | {
 ///         // This will only be executed if the parsing was successful.
 ///         will_be_true = flag.is_activated();
 ///     }));
@@ -45,14 +45,14 @@ impl Flag {
     /// Returns how many times the flag was set.
     /// # Example
     /// ```
-    /// use yaccas::arguments::{Arguments, Flag};
+    /// use yaccas::arguments::{Argument, Flag};
     /// use yaccas::parser::{Parser, Result};
     /// use yaccas::scanner::Unix;
     ///
     /// let mut parser = Parser::default();
     /// let flag = Flag::default();
     ///
-    /// parser.register(&["option", "o"], Arguments::with_callback(flag, | flag | {
+    /// parser.register(&["option", "o"], Argument::with_callback(flag, | flag | {
     ///     assert_eq!(flag.get_matches(), 2u32);
     /// }));
     ///
@@ -69,14 +69,10 @@ impl Default for Flag {
     }
 }
 
-impl Argument for Flag {
-    fn has_value(&self) -> bool {
-        true
-    }
-}
+impl Parsable for Flag {}
 
-impl From<Flag> for Arguments<'static> {
-    fn from(value: Flag) -> Arguments<'static> {
-        Arguments::Flag(value, None)
+impl From<Flag> for Argument<'static> {
+    fn from(value: Flag) -> Argument<'static> {
+        Argument::Flag(value, None)
     }
 }

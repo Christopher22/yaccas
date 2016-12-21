@@ -1,12 +1,12 @@
 use std::any::{Any, TypeId};
 use std::str::FromStr;
 
-use super::{Argument, Arguments};
+use super::{Parsable, Argument};
 
 /// An argument which represents a value of a specific type.
 /// # Example
 /// ```
-/// use yaccas::arguments::{Arguments, Value};
+/// use yaccas::arguments::{Argument, Value};
 /// use yaccas::parser::{Parser, Result};
 /// use yaccas::scanner::Unix;
 ///
@@ -17,7 +17,7 @@ use super::{Argument, Arguments};
 ///     let mut parser = Parser::default();
 ///     let value = Value::new::<u32>();
 ///
-///     parser.register(&["val"], Arguments::with_callback(value, | value | {
+///     parser.register(&["val"], Argument::with_callback(value, | value | {
 ///         will_be_46 = value.get_value::<u32>().expect("This will only be executed if the parsing was successful!");
 ///     }));
 ///
@@ -111,17 +111,18 @@ impl Value {
             None
         }
     }
-}
 
-impl Argument for Value {
-    fn has_value(&self) -> bool {
+    /// Returns if the argument has currently a value.
+    pub fn has_value(&self) -> bool {
         self.value.is_some()
     }
 }
 
-impl From<Value> for Arguments<'static> {
-    fn from(value: Value) -> Arguments<'static> {
-        Arguments::Value(value, None)
+impl Parsable for Value {}
+
+impl From<Value> for Argument<'static> {
+    fn from(value: Value) -> Argument<'static> {
+        Argument::Value(value, None)
     }
 }
 

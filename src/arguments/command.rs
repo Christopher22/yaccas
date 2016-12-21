@@ -1,6 +1,6 @@
 use std::ops::{Fn, Deref};
 
-use super::{Flag, Argument, Arguments};
+use super::{Flag, Parsable, Argument};
 
 /// The result of a `Command`. The parsing is aborted if a reason is set, else it continues.
 /// # Example
@@ -24,14 +24,14 @@ pub type AbortReason = Option<&'static str>;
 /// An argument which may influence the parsing process.
 /// # Example
 /// ```
-/// use yaccas::arguments::{Arguments, Command, AbortReason};
+/// use yaccas::arguments::{Argument, Command, AbortReason};
 /// use yaccas::parser::{Parser, Result};
 /// use yaccas::scanner::Unix;
 ///
 /// let mut parser = Parser::default();
 /// let command = Command::new(|| Some("help"));
 ///
-/// parser.register(&["help", "h"], Arguments::with_callback(command, | command | {
+/// parser.register(&["help", "h"], Argument::with_callback(command, | command | {
 ///     // Fallback: Command was not executed OR command has not abort the execution.
 /// }));
 ///
@@ -74,14 +74,10 @@ impl Deref for Command {
     }
 }
 
-impl Argument for Command {
-    fn has_value(&self) -> bool {
-        true
-    }
-}
+impl Parsable for Command {}
 
-impl From<Command> for Arguments<'static> {
-    fn from(command: Command) -> Arguments<'static> {
-        Arguments::Command(command, None)
+impl From<Command> for Argument<'static> {
+    fn from(command: Command) -> Argument<'static> {
+        Argument::Command(command, None)
     }
 }

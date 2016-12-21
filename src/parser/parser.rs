@@ -11,27 +11,27 @@ pub struct Parser<'a> {
     /// Behavior on free arguments.
     pub free_arguments: FreeArgumentSupport,
     names: HashMap<&'a str, usize>,
-    arguments: Vec<Arguments<'a>>,
+    arguments: Vec<Argument<'a>>,
 }
 
 impl<'a> Parser<'a> {
     /// Registers an `Argument` with specific name(s) and a callback which is called after successful parsing.
     /// # Example
     /// ```
-    /// use yaccas::arguments::{Arguments, Flag};
+    /// use yaccas::arguments::{Argument, Flag};
     /// use yaccas::parser::{Parser, Result};
     /// use yaccas::scanner::Unix;
     ///
     /// let mut parser = Parser::default();
     /// let flag = Flag::default();
     ///
-    /// parser.register(&["option", "o1", "o2"], Arguments::with_callback(flag, | _flag | {
+    /// parser.register(&["option", "o1", "o2"], Argument::with_callback(flag, | _flag | {
     ///     // Do something with the argument here
     /// }));
     ///
     /// assert_eq!(parser.parse(Unix::new(&["-option"])), Result::Success(Vec::new()));
     /// ```
-    pub fn register<T: Into<Arguments<'a>>>(&mut self, names: &[&'a str], argument: T) {
+    pub fn register<T: Into<Argument<'a>>>(&mut self, names: &[&'a str], argument: T) {
         self.arguments.push(argument.into());
 
         let index = self.arguments.len() - 1;
@@ -69,15 +69,15 @@ impl<'a> Parser<'a> {
 
                         // Find argument by ID
                         match self.arguments.get_mut(index) {
-                            Some(&mut Arguments::Flag(ref mut flag, _)) => {
+                            Some(&mut Argument::Flag(ref mut flag, _)) => {
                                 flag.activate();
                             }
-                            Some(&mut Arguments::Command(ref mut command, _)) => {
+                            Some(&mut Argument::Command(ref mut command, _)) => {
                                 if let Some(abort_reason) = command.execute() {
                                     return Result::Aborted(abort_reason);
                                 }
                             }
-                            Some(&mut Arguments::Value(_, _)) => {
+                            Some(&mut Argument::Value(_, _)) => {
                                 current_argument = Some(index);
                             }
                             None => panic!("Invalid index!"),
@@ -97,7 +97,7 @@ impl<'a> Parser<'a> {
                 }
                 (Token::Free(value), Some(argument_index)) => {
                     // If a value was found
-                    if let Arguments::Value(ref mut value_target, _) =
+                    if let Argument::Value(ref mut value_target, _) =
                            self.arguments[argument_index] {
                         if !value_target.set_value(value) || !value_target.has_value() {
                             return Result::InvalidValue;
@@ -129,7 +129,7 @@ impl<'a> Parser<'a> {
 
         // Check if all arguments are sufficient
         for argument in self.arguments.iter() {
-            if let &Arguments::Value(ref value, _) = argument {
+            if let &Argument::Value(ref value, _) = argument {
                 if !value.has_value() {
                     return Result::NotSufficient;
                 }
