@@ -13,6 +13,8 @@ pub enum Argument<'a> {
 
 impl<'a> Argument<'a> {
     /// Extends an Argument with a callback.
+    /// # Hint
+    /// This is a shortcut for `Argument::with_metadata`.
     /// # Example
     /// ```
     /// use yaccas::arguments::{Argument, Flag};
@@ -33,7 +35,19 @@ impl<'a> Argument<'a> {
         Argument::with_metadata(argument, Metadata::<T>::default().set_callback(callback))
     }
 
-    /// Extends an Argument with additional Metadata.
+    /// Extends an `Argument` with additional metadata.
+    /// # Example
+    /// ```
+    /// use yaccas::arguments::{Argument, Metadata, Flag};
+    /// use yaccas::parser::{Parser, Result};
+    /// use yaccas::scanner::Unix;
+    ///
+    /// let mut parser = Parser::default();
+    /// parser.register(&["option", "o1", "o2"], Argument::with_metadata(
+    ///     Flag::default(),
+    ///     Metadata::default()
+    /// ));
+    /// ```
     pub fn with_metadata<T: Parsable>(argument: T, metadata: Metadata<T>) -> Argument {
         match argument.into() {
             Argument::Flag(flag, _) => {
@@ -55,7 +69,7 @@ impl<'a> Argument<'a> {
         }
     }
 
-    /// Executes the callback, if it is set in the metadata.
+    /// Executes the callback iff it is set in the metadata.
     pub fn execute_callback(&mut self) -> bool {
         match self {
             &mut Argument::Flag(ref flag, Some(ref mut meta)) => {
