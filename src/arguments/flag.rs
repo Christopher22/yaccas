@@ -27,19 +27,17 @@ use super::{Parsable, Argument};
 ///
 /// assert_eq!(will_be_true, true);
 /// ```
-pub struct Flag {
-    value: u32,
-}
+pub struct Flag(u32);
 
 impl Flag {
     /// Activates the flag and increments the counter of matches by 1.
     pub fn activate(&mut self) {
-        self.value += 1;
+        self.0 += 1;
     }
 
     /// Checks if the flag is set.
     pub fn is_activated(&self) -> bool {
-        self.value > 0
+        self.0 > 0
     }
 
     /// Returns how many times the flag was set.
@@ -59,13 +57,13 @@ impl Flag {
     /// assert_eq!(parser.parse(Unix::new(&["-option", "-o"])), Result::Success(Vec::new()));
     /// ```
     pub fn get_matches(&self) -> u32 {
-        self.value
+        self.0
     }
 }
 
 impl Default for Flag {
     fn default() -> Flag {
-        Flag { value: 0 }
+        Flag(0)
     }
 }
 
