@@ -1,38 +1,88 @@
+use super::{Argument, Flag, Value, Command, Metadata};
 use std::mem::transmute;
 
-use super::{Argument, Flag, Value, Command, Metadata};
-
 /// An enum of all arguments which may be processed by the parser.
-pub enum Arguments {
+pub enum Arguments<'a> {
     /// A specific flag.
-    Flag(Flag, Metadata<Flag>),
+    Flag(Flag, Option<Metadata<'a, Flag>>),
     /// A specific value.
-    Value(Value, Metadata<Value>),
+    Value(Value, Option<Metadata<'a, Value>>),
     /// A specific command.
-    Command(Command, Metadata<Command>),
+    Command(Command, Option<Metadata<'a, Command>>),
 }
 
-impl Arguments {
-    /// "Unwraps" the value of the enum without using "match".
-    /// # Unsafe
-    /// This function does not check the type of the enum at runtime.
+impl<'a> Arguments<'a> {
+    /// Extends an Argument with a callback.
     /// # Example
     /// ```
-    /// use yaccas::arguments::{Value, Arguments};
+    /// use yaccas::arguments::{Arguments, Flag};
+    /// use yaccas::parser::{Parser, Result};
+    /// use yaccas::scanner::Unix;
     ///
-    /// let argument : Value = Value::with_default::<u32, _>("42").expect("The answer for everything is 42!");
-    /// let arguments : Arguments = argument.into();
-    ///
-    /// unsafe {
-    ///     let unwrapped_pointer : &Value = arguments.unwrap::<Value>();
-    ///     assert_eq!(unwrapped_pointer.get_value::<u32>(), Some(42));
-    /// }
+    /// let mut parser = Parser::default();
+    /// parser.register(&["option", "o1", "o2"], Arguments::with_callback(
+    ///     Flag::default(),
+    ///     | _flag: &Flag | {
+    ///         // Do something with the argument here
+    /// }));
     /// ```
-    pub unsafe fn unwrap<'a, T: Argument>(&'a self) -> &'a T {
+    pub fn with_callback<T, C>(argument: T, callback: C) -> Arguments<'a>
+        where T: Argument,
+              C: FnMut(&T) -> () + 'a
+    {
+        Arguments::with_metadata(argument, Metadata::<T>::default().set_callback(callback))
+    }
+
+    /// Extends an Argument with additional Metadata.
+    pub fn with_metadata<T: Argument>(argument: T, metadata: Metadata<T>) -> Arguments {
+        match argument.into() {
+            Arguments::Flag(flag, _) => {
+                Arguments::Flag(flag,
+                                Some(unsafe { transmute::<Metadata<T>, Metadata<Flag>>(metadata) }))
+            }
+            Arguments::Value(value, _) => {
+                Arguments::Value(value,
+                                 Some(unsafe {
+                                     transmute::<Metadata<T>, Metadata<Value>>(metadata)
+                                 }))
+            }
+            Arguments::Command(command, _) => {
+                Arguments::Command(command,
+                                   Some(unsafe {
+                                       transmute::<Metadata<T>, Metadata<Command>>(metadata)
+                                   }))
+            }
+        }
+    }
+
+    /// Executes the callback, if it is set in the metadata.
+    pub fn execute_callback(&mut self) -> bool {
         match self {
-            &Arguments::Flag(ref flag, _) => transmute::<&'a Flag, &'a T>(flag),
-            &Arguments::Value(ref value, _) => transmute::<&'a Value, &'a T>(value),
-            &Arguments::Command(ref command, _) => transmute::<&'a Command, &'a T>(command),
+            &mut Arguments::Flag(ref flag, Some(ref mut meta)) => {
+                if let Some(ref mut callback) = meta.callback {
+                    callback(&flag);
+                    true
+                } else {
+                    false
+                }
+            }
+            &mut Arguments::Value(ref value, Some(ref mut meta)) => {
+                if let Some(ref mut callback) = meta.callback {
+                    callback(&value);
+                    true
+                } else {
+                    false
+                }
+            }
+            &mut Arguments::Command(ref command, Some(ref mut meta)) => {
+                if let Some(ref mut callback) = meta.callback {
+                    callback(&command);
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
         }
     }
 }

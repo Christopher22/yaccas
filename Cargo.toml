@@ -1,6 +1,6 @@
 [package]
 name = "yaccas"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Christopher Gundler <c.gundler@mail.de>"]
 repository = "https://github.com/Christopher22/yaccas.git"
 homepage = "https://github.com/Christopher22/yaccas.git"

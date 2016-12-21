@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-use std::marker::PhantomData;
-use std::boxed::Box;
+use std::convert::Into;
 
 use ::arguments::*;
 use ::scanner::{Scanner, Token};
 
-use super::callback::{Callback, Executable};
 use super::{FreeArgumentSupport, Result};
 
 /// The parser which parses the `Argument`s upon `Token`s provided by a `Scanner`.
@@ -13,39 +11,30 @@ pub struct Parser<'a> {
     /// Behavior on free arguments.
     pub free_arguments: FreeArgumentSupport,
     names: HashMap<&'a str, usize>,
-    arguments: Vec<Arguments>,
-    callbacks: HashMap<usize, Box<Executable + 'a>>,
+    arguments: Vec<Arguments<'a>>,
 }
 
 impl<'a> Parser<'a> {
     /// Registers an `Argument` with specific name(s) and a callback which is called after successful parsing.
     /// # Example
     /// ```
-    /// use yaccas::arguments::Flag;
+    /// use yaccas::arguments::{Arguments, Flag};
     /// use yaccas::parser::{Parser, Result};
     /// use yaccas::scanner::Unix;
     ///
     /// let mut parser = Parser::default();
     /// let flag = Flag::default();
     ///
-    /// parser.register(&["option", "o1", "o2"], flag, | _flag | {
+    /// parser.register(&["option", "o1", "o2"], Arguments::with_callback(flag, | _flag | {
     ///     // Do something with the argument here
-    /// });
+    /// }));
     ///
     /// assert_eq!(parser.parse(Unix::new(&["-option"])), Result::Success(Vec::new()));
     /// ```
-    pub fn register<T: Argument + 'a, F: FnMut(&T) -> () + 'a>(&mut self,
-                                                               names: &[&'a str],
-                                                               argument: T,
-                                                               handle: F) {
+    pub fn register<T: Into<Arguments<'a>>>(&mut self, names: &[&'a str], argument: T) {
         self.arguments.push(argument.into());
 
         let index = self.arguments.len() - 1;
-
-        self.callbacks.insert(index, Box::new(Callback::<T, F> {
-            phantom: PhantomData,
-            callback: handle,
-        }));
 
         for name in names {
             self.names.insert(name, index);
@@ -108,7 +97,8 @@ impl<'a> Parser<'a> {
                 }
                 (Token::Free(value), Some(argument_index)) => {
                     // If a value was found
-                    if let Arguments::Value(ref mut value_target, _) = self.arguments[argument_index] {
+                    if let Arguments::Value(ref mut value_target, _) =
+                           self.arguments[argument_index] {
                         if !value_target.set_value(value) || !value_target.has_value() {
                             return Result::InvalidValue;
                         }
@@ -146,9 +136,8 @@ impl<'a> Parser<'a> {
             }
         }
 
-        // Execute callbacks
-        for (index, callback) in self.callbacks.iter_mut() {
-            callback.execute(&self.arguments[*index])
+        for argument in self.arguments.iter_mut() {
+            argument.execute_callback();
         }
 
         Result::Success(free_variables)
@@ -161,7 +150,6 @@ impl<'a> Default for Parser<'a> {
             free_arguments: FreeArgumentSupport::AtTheEnd,
             names: HashMap::new(),
             arguments: Vec::new(),
-            callbacks: HashMap::new(),
         }
     }
 }

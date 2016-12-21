@@ -11,17 +11,9 @@
 /// let value = Value::new::<u32>();
 /// let command = Command::new(|| Some("A fancy name for abort"));
 ///
-/// parser.register(&["option", "o1", "o2"], flag, | _flag | {
-///     // Do something with the flag here
-/// });
-///
-/// parser.register(&["abort"], command, | _command | {
-///     // This will be executed if the command was not called
-/// });
-///
-/// parser.register(&["value", "v"], value, | _value | {
-///     // Process value or assingn it somewhere
-/// });
+/// parser.register(&["option", "o1", "o2"], flag);
+/// parser.register(&["abort"], command);
+/// parser.register(&["value", "v"], value);
 ///
 /// assert_eq!(parser.parse(Unix::new(&["-value", "not_a_number"])), Result::InvalidValue);
 /// assert_eq!(parser.parse(Unix::new(&[""])), Result::NotSufficient);

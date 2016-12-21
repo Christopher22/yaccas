@@ -6,7 +6,7 @@
 /// use yaccas::scanner::Unix;
 ///
 /// let mut parser = Parser::default();
-/// parser.register(&["value"], Value::new::<u32>(), |_| {});
+/// parser.register(&["value"], Value::new::<u32>());
 ///
 /// // Test: FreeArgumentSupport::None
 /// parser.free_arguments = FreeArgumentSupport::None;

@@ -1,12 +1,12 @@
 use std::any::{Any, TypeId};
 use std::str::FromStr;
 
-use super::{Argument, Arguments, Metadata};
+use super::{Argument, Arguments};
 
 /// An argument which represents a value of a specific type.
 /// # Example
 /// ```
-/// use yaccas::arguments::Value;
+/// use yaccas::arguments::{Arguments, Value};
 /// use yaccas::parser::{Parser, Result};
 /// use yaccas::scanner::Unix;
 ///
@@ -17,9 +17,9 @@ use super::{Argument, Arguments, Metadata};
 ///     let mut parser = Parser::default();
 ///     let value = Value::new::<u32>();
 ///
-///     parser.register(&["val"], value, | value | {
+///     parser.register(&["val"], Arguments::with_callback(value, | value | {
 ///         will_be_46 = value.get_value::<u32>().expect("This will only be executed if the parsing was successful!");
-///     });
+///     }));
 ///
 ///     assert_eq!(parser.parse(Unix::new(&["-val", "46"])), Result::Success(Vec::new()));
 /// }
@@ -119,9 +119,9 @@ impl Argument for Value {
     }
 }
 
-impl From<Value> for Arguments {
-    fn from(value: Value) -> Arguments {
-        Arguments::Value(value, Metadata::default())
+impl From<Value> for Arguments<'static> {
+    fn from(value: Value) -> Arguments<'static> {
+        Arguments::Value(value, None)
     }
 }
 
