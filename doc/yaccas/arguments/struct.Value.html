@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Value` struct in crate `yaccas`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Value">
+
+    <title>yaccas::arguments::Value - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>yaccas</a>::<wbr><a href='index.html'>arguments</a></p><script>window.sidebarCurrent = {name: 'Value', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>yaccas</a>::<wbr><a href='index.html'>arguments</a>::<wbr><a class='struct' href=''>Value</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-29' class='srclink' href='../../src/yaccas/src/arguments/value.rs.html#29-33' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Value { /* fields omitted */ }</pre><div class='docblock'><p>An argument which represents a value of a specific type.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>arguments</span>::{<span class='ident'>Argument</span>, <span class='ident'>Value</span>};
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>parser</span>::{<span class='ident'>Parser</span>, <span class='prelude-ty'>Result</span>};
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>scanner</span>::<span class='ident'>Unix</span>;
+
+<span class='comment'>// This option will be modified by the value</span>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>will_be_46</span> <span class='op'>=</span> <span class='number'>0u32</span>;
+
+{
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>parser</span> <span class='op'>=</span> <span class='ident'>Parser</span>::<span class='ident'>default</span>();
+    <span class='kw'>let</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>Value</span>::<span class='ident'>new</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>();
+
+    <span class='ident'>parser</span>.<span class='ident'>register</span>(<span class='kw-2'>&amp;</span>[<span class='string'>&quot;val&quot;</span>], <span class='ident'>Argument</span>::<span class='ident'>with_callback</span>(<span class='ident'>value</span>, <span class='op'>|</span> <span class='ident'>value</span> <span class='op'>|</span> {
+        <span class='ident'>will_be_46</span> <span class='op'>=</span> <span class='ident'>value</span>.<span class='ident'>get_value</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>().<span class='ident'>expect</span>(<span class='string'>&quot;This will only be executed if the parsing was successful!&quot;</span>);
+    }));
+
+    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>parser</span>.<span class='ident'>parse</span>(<span class='ident'>Unix</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span>[<span class='string'>&quot;-val&quot;</span>, <span class='string'>&quot;46&quot;</span>])), <span class='prelude-ty'>Result</span>::<span class='ident'>Success</span>(<span class='ident'>Vec</span>::<span class='ident'>new</span>()));
+}
+
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>will_be_46</span>, <span class='number'>46u32</span>);<a class='test-arrow' target='_blank' href=''>Run</a></pre>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../yaccas/arguments/struct.Value.html' title='yaccas::arguments::Value'>Value</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-34' class='srclink' href='../../src/yaccas/src/arguments/value.rs.html#35-119' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><span id='new.v' class='invisible'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;T:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html' title='core::str::FromStr'>FromStr</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + 'static&gt;() -&gt; <a class='struct' href='../../yaccas/arguments/struct.Value.html' title='yaccas::arguments::Value'>Value</a></code></span></h4>
+<div class='docblock'><p>Creates a new value of a specific type <code>T</code> which implements <code>FromStr</code>.</p>
+
+<h1 id='example-1' class='section-header'><a href='#example-1'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>arguments</span>::<span class='ident'>Value</span>;
+
+<span class='kw'>let</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>Value</span>::<span class='ident'>new</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>();<a class='test-arrow' target='_blank' href=''>Run</a></pre>
+</div><h4 id='method.with_default' class='method'><span id='with_default.v' class='invisible'><code>fn <a href='#method.with_default' class='fnname'>with_default</a>&lt;T:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html' title='core::str::FromStr'>FromStr</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + 'static,&nbsp;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;(value: S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../yaccas/arguments/struct.Value.html' title='yaccas::arguments::Value'>Value</a>&gt;</code></span></h4>
+<div class='docblock'><p>Creates a new value with a default value.</p>
+
+<h1 id='example-2' class='section-header'><a href='#example-2'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>arguments</span>::<span class='ident'>Value</span>;
+
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>Value</span>::<span class='ident'>with_default</span>::<span class='op'>&lt;</span><span class='ident'>u32</span>, _<span class='op'>&gt;</span>(<span class='string'>&quot;46&quot;</span>).<span class='ident'>is_some</span>());
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>Value</span>::<span class='ident'>with_default</span>::<span class='op'>&lt;</span><span class='ident'>u32</span>, _<span class='op'>&gt;</span>(<span class='string'>&quot;Not a number!&quot;</span>).<span class='ident'>is_none</span>());<a class='test-arrow' target='_blank' href=''>Run</a></pre>
+</div><h4 id='method.set_value' class='method'><span id='set_value.v' class='invisible'><code>fn <a href='#method.set_value' class='fnname'>set_value</a>&lt;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;(&amp;mut self, value: S) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>Set the value if it is valid.</p>
+
+<h1 id='example-3' class='section-header'><a href='#example-3'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>arguments</span>::<span class='ident'>Value</span>;
+
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>Value</span>::<span class='ident'>new</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>();
+
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>.<span class='ident'>set_value</span>(<span class='string'>&quot;Invalid value&quot;</span>), <span class='bool-val'>false</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>.<span class='ident'>get_value</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>(), <span class='prelude-val'>None</span>);
+
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>.<span class='ident'>set_value</span>(<span class='string'>&quot;46&quot;</span>), <span class='bool-val'>true</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>.<span class='ident'>get_value</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>(), <span class='prelude-val'>Some</span>(<span class='number'>46</span>));<a class='test-arrow' target='_blank' href=''>Run</a></pre>
+</div><h4 id='method.get_value' class='method'><span id='get_value.v' class='invisible'><code>fn <a href='#method.get_value' class='fnname'>get_value</a>&lt;T:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html' title='core::str::FromStr'>FromStr</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + 'static&gt;(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;T&gt;</code></span></h4>
+<div class='docblock'><p>Returns the value from type <code>T</code> if possible.</p>
+
+<h1 id='hint' class='section-header'><a href='#hint'>Hint</a></h1>
+<p>The type <code>T</code> is checked at runtime to be identical which that from <code>new</code>.</p>
+
+<h1 id='example-4' class='section-header'><a href='#example-4'>Example</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>yaccas</span>::<span class='ident'>arguments</span>::<span class='ident'>Value</span>;
+
+<span class='kw'>let</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>Value</span>::<span class='ident'>with_default</span>::<span class='op'>&lt;</span><span class='ident'>u32</span>, _<span class='op'>&gt;</span>(<span class='string'>&quot;46&quot;</span>).<span class='ident'>expect</span>(<span class='string'>&quot;Well, 46 is a number...&quot;</span>);
+
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>.<span class='ident'>get_value</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>(), <span class='prelude-val'>Some</span>(<span class='number'>46</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>.<span class='ident'>get_value</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>(), <span class='prelude-val'>None</span>); <span class='comment'>// See hint</span><a class='test-arrow' target='_blank' href=''>Run</a></pre>
+</div><h4 id='method.has_value' class='method'><span id='has_value.v' class='invisible'><code>fn <a href='#method.has_value' class='fnname'>has_value</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>Returns if the argument has currently a value.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='trait.Parsable.html' title='yaccas::arguments::Parsable'>Parsable</a> for <a class='struct' href='../../yaccas/arguments/struct.Value.html' title='yaccas::arguments::Value'>Value</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-51' class='srclink' href='../../src/yaccas/src/arguments/value.rs.html#121' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "yaccas";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
