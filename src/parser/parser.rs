@@ -43,72 +43,67 @@ impl<'a> Parser<'a> {
 
     /// Parses the `Tokens` provided by a `Scanner` and matches them with registered `Argument`s.
     pub fn parse<S: Scanner>(&mut self, scanner: S) -> Result {
-
-        let mut current_argument: Option<usize> = None;
-        let mut add_to_free_variables: bool = false;
-        let mut free_variables: Vec<String> = Vec::new();
+        let mut expecting_value = None;
+        let mut add_to_free_variables = false;
+        let mut free_variables = Vec::new();
 
         for token in scanner {
-
             // Check if further arguments need to be parsed
             if add_to_free_variables {
-                match token {
-                    Token::Bound(free) |
-                    Token::Free(free) => {
-                        free_variables.push(free);
-                    }
-                }
+                free_variables.push(token.into());
                 continue;
             }
 
-            match (token, current_argument) {
-                (Token::Bound(name), None) => {
-                    // If an argument was found
-
-                    if let Some(&index) = self.names.get::<str>(&name) {
-
-                        // Find argument by ID
-                        match self.arguments.get_mut(index) {
-                            Some(&mut Argument::Flag(ref mut flag, _)) => {
-                                flag.activate();
+            // If a `Value` is expecting a value...
+            if let Some(index) = expecting_value {
+                match token {
+                    // Fail if the value is skipped
+                    Token::Bound(_) => {
+                        return Result::InvalidValue;
+                    }
+                    // Try to set the value
+                    Token::Free(value) => {
+                        if let Argument::Value(ref mut argument, _) = self.arguments[index] {
+                            if !argument.set_value(value) || !argument.has_value() {
+                                return Result::InvalidValue;
                             }
-                            Some(&mut Argument::Command(ref mut command, _)) => {
-                                if let Some(abort_reason) = command.execute() {
-                                    return Result::Aborted(abort_reason);
-                                }
-                            }
-                            Some(&mut Argument::Value(_, _)) => {
-                                current_argument = Some(index);
-                            }
-                            None => panic!("Invalid index!"),
+                            expecting_value = None;
+                        } else {
+                            panic!("Argument index was invalid!");
                         }
-                    } else if let FreeArgumentSupport::AtTheEnd = self.free_arguments {
-                        add_to_free_variables = true;
-                        free_variables.push(name);
-                    } else if let FreeArgumentSupport::Everywhere = self.free_arguments {
-                        free_variables.push(name);
-                    } else {
-                        return Result::InvalidArgument;
                     }
                 }
-                (Token::Bound(_), Some(_)) => {
-                    // If an argument was found rather than a value
-                    return Result::InvalidValue;
-                }
-                (Token::Free(value), Some(argument_index)) => {
-                    // If a value was found
-                    if let Argument::Value(ref mut value_target, _) =
-                           self.arguments[argument_index] {
-                        if !value_target.set_value(value) || !value_target.has_value() {
-                            return Result::InvalidValue;
+            } else {
+                // Try to parse the argument or return it as a free argument
+                let free_argument = if let Token::Bound(name) = token {
+                    // Try to find the argument by name
+                    let arg_index = self.names.get::<str>(&name).cloned();
+                    // Process the argument if possible
+                    match arg_index.map(|index| {
+                        (index, self.arguments.get_mut(index).expect("Invalid index"))
+                    }) {
+                        Some((_, &mut Argument::Flag(ref mut flag, _))) => {
+                            flag.activate();
+                            None
                         }
-                        current_argument = None;
-                    } else {
-                        panic!("Argument index was invalid!");
+                        Some((_, &mut Argument::Command(ref mut command, _))) => {
+                            if let Some(abort_reason) = command.execute() {
+                                return Result::Aborted(abort_reason);
+                            }
+                            None
+                        }
+                        Some((index, &mut Argument::Value(_, _))) => {
+                            expecting_value = Some(index);
+                            None
+                        }
+                        _ => Some(name),
                     }
-                }
-                (Token::Free(free_value), None) => {
-                    // If a free variable was found
+                } else {
+                    Some(token.into())
+                };
+
+                // Process the free argument if set
+                if let Some(free_argument) = free_argument {
                     match self.free_arguments {
                         FreeArgumentSupport::None => {
                             return Result::InvalidArgument;
@@ -117,10 +112,10 @@ impl<'a> Parser<'a> {
                             if !add_to_free_variables {
                                 add_to_free_variables = true;
                             }
-                            free_variables.push(free_value);
+                            free_variables.push(free_argument);
                         }
                         FreeArgumentSupport::Everywhere => {
-                            free_variables.push(free_value);
+                            free_variables.push(free_argument);
                         }
                     }
                 }
@@ -128,14 +123,16 @@ impl<'a> Parser<'a> {
         }
 
         // Check if all arguments are sufficient
-        for argument in self.arguments.iter() {
-            if let &Argument::Value(ref value, _) = argument {
-                if !value.has_value() {
-                    return Result::NotSufficient;
-                }
+        if self.arguments.iter().any(|argument| {
+            match argument {
+                &Argument::Value(ref value, _) if !value.has_value() => true,
+                _ => false,
             }
+        }) {
+            return Result::NotSufficient;
         }
 
+        // Parsing was successful: Execute the callbacks.
         for argument in self.arguments.iter_mut() {
             argument.execute_callback();
         }
