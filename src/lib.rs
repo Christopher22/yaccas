@@ -23,21 +23,16 @@ pub mod scanner;
 #[macro_export]
 macro_rules! default_scanner {
     () => ({
-            use yaccas::scanner::{Unix, Windows};
             use std::env::Args;
 
             #[cfg(target_family = "windows")]
-            #[inline(always)]
-            fn default() -> Windows<Args> {
-                Windows::<Args>::default()
+            {
+                $crate::scanner::Windows::<Args>::default()
             }
 
             #[cfg(not(target_family = "windows"))]
-            #[inline(always)]
-            fn default() -> Unix<Args> {
-                Unix::<Args>::default()
+            {
+                $crate::scanner::Unix::<Args>::default()
             }
-
-            default()
     })
 }
