@@ -1,22 +1,3 @@
-# Yaccas [![Build Status](https://travis-ci.org/Christopher22/yaccas.svg?branch=master)](https://travis-ci.org/Christopher22/yaccas)
-**Y**et **A**nother **C**allback-orientated **C**ommand line p**A**r**S**er is ... well, yet another command line parser.
-
-## Features or "Yet another?! You are not that creative, are you?!"
-Indeed, there are so many command line parser written in Rust out there... But would I have written this one if it is like all the other? 
-Let me convince you: Why should you choose this one?
-
-- Smoothly to integrate into existing projects
-- Extreme lightweight, easy & fast
-    - Zero dependencies: Only pure Rust!
-- No handler, references or other bullshit: Just modern callbacks!
-- Ready for every system: Accept the syntax of UNIX exactly like that one of WINDOWS.
-- Completely documented, many (doc-)tests to check correctness
-    
-## Documentation
-[Documentation on GitHub](https://christopher22.github.io/yaccas/yaccas/)
-
-## Example
-```Rust
 #[macro_use]
 extern crate yaccas;
 
@@ -24,7 +5,8 @@ use yaccas::arguments::{Argument, Command, Flag, Value};
 use yaccas::parser::{Parser, Result};
 use yaccas::scanner::Unix;
 
-fn main() {
+#[test]
+fn example_with_callback() {
     let mut will_be_true_if_flag_is_set = false;
     let mut will_be_42_as_everytime = 0u32;
 
@@ -36,8 +18,7 @@ fn main() {
         let command = Command::new(|| Some("A fancy name for abort"));
 
         // Registers the arguments to a parser.
-        // All callbacks will only be executed if parsing was successful.
-        // You do not need to add a callback, `parser.register(&["option"], flag)` is valid, too.
+        // All callbacks will only be executed if parsing was successful!
         let mut parser = Parser::default();
 
         parser.register(&["option", "o1", "o2"], Argument::with_callback(flag, | flag | {
@@ -57,7 +38,7 @@ fn main() {
 
         // You may use parser.parse(default_scanner!()) to get real arguments.
         match parser.parse(Unix::new(&vec!["-o1", "-value" , "42"])) {
-            Result::Success(_ /* Get free arguments here */) => { /* ... */ },
+            Result::Success(_) => { /* ... */ },
             Result::Aborted("A fancy name for abort") => { /* ... */ },
             _ => { panic!("This example will be successful!") }
         }
@@ -66,19 +47,3 @@ fn main() {
     assert!(will_be_true_if_flag_is_set);
     assert_eq!(will_be_42_as_everytime, 42);
 }
-```
-
-##Author
-Christopher Gundler (<c.gundler@mail.de>)
-
-##License
-Licensed under either of
- * Apache License, Version 2.0, (http://www.apache.org/licenses/LICENSE-2.0)
- * MIT license (http://opensource.org/licenses/MIT)
- 
-at your option.
-
-##Contribution
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
-additional terms or conditions.
