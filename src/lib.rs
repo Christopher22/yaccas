@@ -23,7 +23,7 @@ pub mod scanner;
 #[macro_export]
 macro_rules! default_scanner {
     () => ({
-            use std::env::Args;
+            use ::std::env::Args;
 
             #[cfg(target_family = "windows")]
             {
